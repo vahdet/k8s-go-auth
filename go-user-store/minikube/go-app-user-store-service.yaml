@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: go-user-store
+  labels:
+    app: go-user-store
+    tier: frontend
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 9090
+  selector:
+    app: go-user-store
+    tier: frontend
