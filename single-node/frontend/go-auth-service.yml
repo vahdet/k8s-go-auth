@@ -1,0 +1,71 @@
+### Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: go-auth-api-service
+  labels:
+    app: goAuthApi
+    environment: dev
+    tier: frontend
+spec:
+  # Select any Pod with app label is 'goAuthApi' ... 
+  # .. AND environment label is 'dev'
+  selector: 
+    app: goAuthApi
+    environment: dev
+    tier: frontend
+  ports:
+  - name: grpc
+    protocol: TCP     # Kubernetes Services support TCP and UDP for protocols. The default is TCP
+    port: 5300        # A Service can map an incoming port to any targetPort. By default the targetPort will be set to the same value as the port field.
+    targetPort: 5300  # The port on which the pods work on. 5300 is the default port for gRPC
+  - name: http
+    protocol: TCP
+    port: 80
+    targetPort: 80
+  - name: https
+    protocol: TCP
+    port: 443
+    targetPort: 443
+  type: LoadBalancer  # 'type: LoadBalancer' means that the Service uses the default load balancer of your cloud provider.
+---
+### Deployment (Pod definition is also embedded in)
+apiVersion: apps/v1
+kind: Deployment
+metadata: 
+  name: go-auth-api-deployment
+spec:
+  replicas: 1        # That's what makes this a single-node definition!!
+  # following selector field defines how the Deployment finds which Pods to manage. Just like the service
+  selector:
+    matchLabels:
+      app: goAuthApi
+      environment: dev
+      tier: frontend
+  template:
+    metadata:
+      labels:
+        app: goAuthApi
+        environment: dev
+    spec: # template: spec field, indicates that the Pods run one container
+      containers:
+      - name: go-auth-service
+        image: vahdet/go-auth-service:latest
+        resources:
+          requests:
+            cpu: 100m
+            memory: 100Mi
+        env:
+        - name: USER_STORE_SERVICE_URL
+          value: go-user-store-service.default.svc.cluster.local:5300
+        - name: REFRESH_TOKEN_STORE_SERVICE_URL
+          value: go-refresh-token-store-service.default.svc.cluster.local:5300
+        - name: GET_HOSTS_FROM
+          value: dns
+          # If your cluster config does not include a dns service, then to
+          # instead access an environment variable to find the master
+          # service's host, comment out the 'value: dns' line above, and
+          # uncomment the line below:
+          # value: env          
+        ports:
+        - containerPort: 5300

@@ -1,0 +1,61 @@
+### Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: go-user-store-service
+  labels:
+    app: goUserStore
+    environment: dev
+    tier: middleware
+spec:
+  # Select any Pod with app label is 'goUserStore' ... 
+  # .. AND environment label is 'dev'
+  selector: 
+    app: goUserStore
+    environment: dev
+    tier: middleware
+  ports:
+  - name: grpc
+    protocol: TCP     # Kubernetes Services support TCP and UDP for protocols. The default is TCP
+    port: 5300        # A Service can map an incoming port to any targetPort. By default the targetPort will be set to the same value as the port field.
+    targetPort: 5300  # The port on which the pods work on. 5300 is the default port for gRPC
+  type: LoadBalancer  # 'type: LoadBalancer' means that the Service uses the default load balancer of your cloud provider.
+---
+### Deployment (Pod definition is also embedded in)
+apiVersion: apps/v1
+kind: Deployment
+metadata: 
+  name: go-user-store-deployment
+spec:
+  replicas: 1        # That's what makes this a single-node definition!!
+  # following selector field defines how the Deployment finds which Pods to manage. Just like the service
+  selector:
+    matchLabels:
+      app: goUserStore
+      environment: dev
+      tier: middleware
+  template:
+    metadata:
+      labels:
+        app: goUserStore
+        environment: dev
+    spec: # template: spec field, indicates that the Pods run one container
+      containers:
+      - name: go-user-store
+        image: vahdet/go-user-store:latest
+        resources:
+          requests:
+            cpu: 100m
+            memory: 100Mi
+        env:
+        - name: USER_STORE_REDIS_URL
+          value: redis.default.svc.cluster.local:6379
+        - name: GET_HOSTS_FROM
+          value: dns
+          # If your cluster config does not include a dns service, then to
+          # instead access an environment variable to find the master
+          # service's host, comment out the 'value: dns' line above, and
+          # uncomment the line below:
+          # value: env          
+        ports:
+        - containerPort: 5300
