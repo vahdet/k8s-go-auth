@@ -42,7 +42,7 @@ spec:
     spec: # template: spec field, indicates that the Pods run one container
       containers:
       - name: go-refresh-token-store
-        image: vahdet/go-refresh-token-store:latest
+        image: vahdet/go-refresh-token-store-redis:latest
         resources:
           requests:
             cpu: 100m
