@@ -58,4 +58,9 @@ spec:
           # uncomment the line below:
           # value: env          
         ports:
-        - containerPort: 5300
+          # List of ports to expose from the container. 
+          # Exposing a port here gives the system additional information about the network connections a container uses, but is primarily informational.
+          # Not specifying a port here DOES NOT prevent that port from being exposed. 
+          # Any port which is listening on the default "0.0.0.0" address inside a container will be accessible from the network. 
+          # Cannot be updated.
+        - containerPort: 5300 # Number of port to expose on the pod's IP address. This must be a valid port number, 0 < x < 65536.
