@@ -39,6 +39,7 @@ spec:
       labels:
         app: goUserStore
         environment: dev
+        tier: middleware
     spec: # template: spec field, indicates that the Pods run one container
       containers:
       - name: go-user-store
