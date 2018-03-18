@@ -47,6 +47,7 @@ spec:
       labels:
         app: goAuthApi
         environment: dev
+        tier: frontend
     spec: # template: spec field, indicates that the Pods run one container
       containers:
       - name: go-auth-service

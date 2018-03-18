@@ -50,7 +50,7 @@ spec:
             memory: 100Mi
         env:
         - name: USER_STORE_REDIS_URL
-          value: redis.default.svc.cluster.local:6379
+          value: 127.0.0.1:6379
         - name: GET_HOSTS_FROM
           value: dns
           # If your cluster config does not include a dns service, then to
